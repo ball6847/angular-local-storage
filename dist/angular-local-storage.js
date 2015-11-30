@@ -1,6 +1,6 @@
 /**
  * An Angular module that gives you access to the browsers local storage
- * @version v0.2.3 - 2015-10-11
+ * @version v0.2.3 - 2015-11-30
  * @link https://github.com/grevory/angular-local-storage
  * @author grevory <greg@gregpike.ca>
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -391,6 +391,20 @@ angularLocalStorage.provider('localStorageService', function() {
       return storageType;
     };
 
+    var setStorageType = function(type) {
+      storageType = self.storageType = type;
+
+      var supported = (storageType in $window && $window[storageType] !== null);
+
+      var key = deriveQualifiedKey('__' + Math.round(Math.random() * 1e7));
+
+      if (supported) {
+        webStorage = $window[storageType];
+        webStorage.setItem(key, '');
+        webStorage.removeItem(key);
+      }
+    };
+
     // Add a listener on scope variable to save its changes to local storage
     // Return a function which when called cancels binding
     var bindToScope = function(scope, key, def, lsKey) {
@@ -426,6 +440,7 @@ angularLocalStorage.provider('localStorageService', function() {
     return {
       isSupported: browserSupportsLocalStorage,
       getStorageType: getStorageType,
+      setStorageType: setStorageType,
       set: addToLocalStorage,
       add: addToLocalStorage, //DEPRECATED
       get: getFromLocalStorage,
